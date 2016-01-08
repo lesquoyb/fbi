@@ -89,11 +89,12 @@ function face_learning
 
     %% Identification des motifs globaux, construction de leurs histogrammes
     G_Patterns = [];
+    QAC = cell(NB_FACES, NB_IMAGES);
     for f = 1:NB_FACES
         for fi = 1:NB_IMAGES
             % normalisation et quantification des AC
-    %% CUT HERE ====================================================================
-
+            R(fi) = DC_MEAN_ALL / dc_means(fi);
+            QAC(f,fi) = AC_Mat(f,fi) * R(fi) / QP;
     %% CUT HERE ====================================================================
 
             % identification des motifs et comptage de leurs occurrences.
