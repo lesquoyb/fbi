@@ -1,29 +1,29 @@
 function face_learning
-    %  Identifier les motifs globaux, G_Patterns, présents dans toutes les
+    %  Identifier les motifs globaux, G_Patterns, prï¿½sents dans toutes les
     %  images de tous les visages de la base de connaissance ainsi que les
     %  occurrences de ces motifs dans chaque image de chaque visage de la base.
     %  
-    %  Chaque image est découpée en N blocs 4x4. Chaque bloc est analysé en
-    %  fréquences via la DCT2 dont le coefficient DC est ignoré. Ensuite chaque
-    %  image est réprésentée par une matrice Nx15 qui sert à la fois à
-    %  identifier les motifs globaux et à construire l'histogramme de ces
+    %  Chaque image est dï¿½coupï¿½e en N blocs 4x4. Chaque bloc est analysï¿½ en
+    %  frï¿½quences via la DCT2 dont le coefficient DC est ignorï¿½. Ensuite chaque
+    %  image est rï¿½prï¿½sentï¿½e par une matrice Nx15 qui sert ï¿½ la fois ï¿½
+    %  identifier les motifs globaux et ï¿½ construire l'histogramme de ces
     %  motifs pour chaque image de chaque visage de la base de connaissance.
     %
-    % Les paramètres dont les motifs globaux, utiles à l'identification d'une
-    % image inconnue sont enregistrés dans le fichier 'params.mat' ainsi que
+    % Les paramï¿½tres dont les motifs globaux, utiles ï¿½ l'identification d'une
+    % image inconnue sont enregistrï¿½s dans le fichier 'params.mat' ainsi que
     % les histogrammes de chaque image de chaque visage de la base de
     % connaissance.
     %
-    % Le même traitement peut être fait avec les coefficients DC. Mais ils sont
-    % ignorés pour ce projet.
+    % Le mï¿½me traitement peut ï¿½tre fait avec les coefficients DC. Mais ils sont
+    % ignorï¿½s pour ce projet.
 
-    %% Réinitialiser l'espace de travail
+    %% Rï¿½initialiser l'espace de travail
     clear
     clc
 
-    %% Définir le répertoire de la base de connaisssance #
+    %% Dï¿½finir le rï¿½pertoire de la base de connaisssance #
     db_path = uigetdir();
-    %% Initialiser les paramètres globaux
+    %% Initialiser les paramï¿½tres globaux
     BSZ = 4; %pour faire des blocs de 4x4
     QP = 22;
     N_AC_PATTERNS = 35;
@@ -51,16 +51,29 @@ function face_learning
             [h,w] = size(img);
 
             %faire des blocs de taille 4x4
-            tmp = split(img,BSZ,BZ2, QP);
-            size(AC_list)
-            size(tmp)
-            AC_list{f, fi} = [tmp(1:15)];%TODO:nope, il faut garder les 15 les plus récurrent si j'ai bien compris
-
+            %DCT, AC_Mat = split(img,BSZ,BZ2, QP);
+            AC_Mat = [];
+            DCT = [];
+            sizeN = BSZ-1;
+            counter = 1;
+            for i = 1:BZ2:size(img,1)-sizeN
+                for j = 1:BZ2:size(img,2)-sizeN
+                    tmp = dct2(img(i:i+sizeN, j:j+sizeN)) /QP ;
+                    DCT{counter} = tmp(1,1);
+                    AC_Mat{counter} =  reshape(tmp(2:sizeN, :)',1,[]);
+                    counter = counter +1;
+                end
+            end
+            %size(AC_list)
+            %size(tmp)
+            AC_list{f, fi} = [DCT(1:15)];%TODO:nope, il faut garder les 15 les plus rï¿½current si j'ai bien compris
         end
+        size(AC_Mat)
     end
+    
     DC_MEAN_ALL = mean2(dc_means);
 
-    %% Stockage des paramètres dans une structure
+    %% Stockage des paramï¿½tres dans une structure
     params = struct(...
         'BZS',BSZ,...
         'QP',QP,...
@@ -84,14 +97,14 @@ function face_learning
     %% CUT HERE ====================================================================
 
             % identification des motifs et comptage de leurs occurrences.
-                    % QAC est la matrice des vecteurs AC quantifés
+                    % QAC est la matrice des vecteurs AC quantifï¿½s
             for i = 1:size(QAC,1)
     %% CUT HERE ====================================================================
     %% CUT HERE ====================================================================
             end
         end
     end
-    % Conserver les N_AC_PATTERNS motifs les plus présents dans toutes les
+    % Conserver les N_AC_PATTERNS motifs les plus prï¿½sents dans toutes les
     % images de tous les visages de la base.
     [~,Idx] = sort(G_Patterns(:,end),'descend');
     G_Patterns = G_Patterns(Idx(1:N_AC_PATTERNS),1:(end-1));
@@ -114,13 +127,15 @@ function face_learning
 end
 
 
-function R = split(Matrix, N, pas, QP)
-    R = [];
-    %TODO: on peut surement utiliser submatrix
+function DCT, AC_Mat = split(Matrix, N, pas, QP)
+    AC_Mat = [];
+    DCT = [];
     sizeN = N-1;
     for i = 1:pas:size(Matrix,1)-sizeN
         for j = 1:pas:size(Matrix,2)-sizeN
-            R = [R, num2cell(dct2(Matrix(i:i+sizeN, j:j+sizeN)) /QP ,1) ];
+            tmp = dct2(Matrix(i:i+sizeN, j:j+sizeN)) /QP ;
+            DCT(i,j) = tmp(1,1);
+            AC_Mat{i,j} = reshape(tmp',1,[]);
         end
     end
 end
