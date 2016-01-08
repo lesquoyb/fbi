@@ -25,7 +25,7 @@ function face_learning
     db_path = uigetdir();
     %% Initialiser les param�tres globaux
     BSZ = 4; %pour faire des blocs de 4x4
-    QP = 6;%TODO: 22 ?
+    QP = 22;%TODO: 22 ?
     N_AC_PATTERNS = 35;
     NB_FACES = 5;
     NB_IMAGES = 1; %TODO: d'autres valeurs
@@ -58,7 +58,7 @@ function face_learning
             for i= 1:2:(h-3)
                 for j= 1:2:(w-3)
                     b = img(i:(i+3),j:(j+3));
-                    tmp = round( dct2(b) * (DC_MEAN_ALL/ dc_means(f,fi)/QP));%TODO: vérifier
+                    tmp = dct2(b);%TODO: vérifier
                     lol = reshape(tmp(:,:), 1, []);
                     AC_Mat(id) = {lol(2:size(lol,2))};
                     DC(id) = tmp(1,1);
@@ -67,12 +67,11 @@ function face_learning
             end
             
             dc_means(f,fi) = mean(DC);
-            DC_MEAN_ALL = mean2(dc_means);
             AC_list{f, fi} = AC_Mat;%TODO:nope, il faut garder les 15 les plus r�current si j'ai bien compris
         
         end
     end
-    
+    DC_MEAN_ALL = mean2(dc_means);
    
 
     %% Stockage des param�tres dans une structure
@@ -96,7 +95,7 @@ function face_learning
         for fi = 1:NB_IMAGES
             % normalisation et quantification des AC
             R(fi) = DC_MEAN_ALL / dc_means(fi);
-            QAC(f,fi) = AC_Mat(f,fi) * R(fi) / QP;
+            QAC(f,fi) = {cell2mat( AC_list{f, fi}) * R(fi) / QP};
     %% CUT HERE ====================================================================
 
             % identification des motifs et comptage de leurs occurrences.
