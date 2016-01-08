@@ -25,7 +25,7 @@ function face_learning
     db_path = uigetdir();
     %% Initialiser les param�tres globaux
     BSZ = 4; %pour faire des blocs de 4x4
-    QP = 22;
+    QP = 6;%TODO: 22 ?
     N_AC_PATTERNS = 35;
     NB_FACES = 5;
     NB_IMAGES = 1; %TODO: d'autres valeurs
@@ -52,26 +52,28 @@ function face_learning
 
             %faire des blocs de taille 4x4
             %DCT, AC_Mat = split(img,BSZ,BZ2, QP);
-            AC_Mat = [];
-            DCT = [];
-            sizeN = BSZ-1;
-            counter = 1;
-            for i = 1:BZ2:size(img,1)-sizeN
-                for j = 1:BZ2:size(img,2)-sizeN
-                    tmp = dct2(img(i:i+sizeN, j:j+sizeN)) /QP ;
-                    DCT{counter} = tmp(1,1);
-                    AC_Mat{counter} =  reshape(tmp(2:sizeN, :)',1,[]);
-                    counter = counter +1;
+            DC = [];
+            AC_Mat = cell(size(1:2:(h-3), 1), size(1:2:(w-3), 1));
+            id = 1;
+            for i= 1:2:(h-3)
+                for j= 1:2:(w-3)
+                    b = img(i:(i+3),j:(j+3));
+                    tmp = round( dct2(b) * (DC_MEAN_ALL/ dc_means(f,fi)/QP));%TODO: vérifier
+                    lol = reshape(tmp(:,:), 1, []);
+                    AC_Mat(id) = {lol(2:size(lol,2))};
+                    DC(id) = tmp(1,1);
+                    id = id + 1;
                 end
             end
-            %size(AC_list)
-            %size(tmp)
-            AC_list{f, fi} = [DCT(1:15)];%TODO:nope, il faut garder les 15 les plus r�current si j'ai bien compris
+            
+            dc_means(f,fi) = mean(DC);
+            DC_MEAN_ALL = mean2(dc_means);
+            AC_list{f, fi} = AC_Mat;%TODO:nope, il faut garder les 15 les plus r�current si j'ai bien compris
+        
         end
-        size(AC_Mat)
     end
     
-    DC_MEAN_ALL = mean2(dc_means);
+   
 
     %% Stockage des param�tres dans une structure
     params = struct(...
