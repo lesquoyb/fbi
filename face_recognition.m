@@ -16,7 +16,7 @@ load('params.mat'); % params est une structure (cf. face_learning)
  NB_FACES = params.NB_FACES;
  NB_IMAGES = params.NB_IMAGES;
  DC_MEAN_ALL = params.DC_MEAN_ALL;
- DIR = params.db_path);
+ DIR = params.db_path;
 %% extraction des blocs DCT
 
 N_AC_PATTERNS = params.N_AC_PATTERNS;
@@ -24,22 +24,7 @@ N_AC_PATTERNS = params.N_AC_PATTERNS;
 %% extraction des blocs DCT
 ACSZ = params.BSZ * params.BSZ -1;
 [AC_Mat,DC] = read_acdc_image(img,ACSZ);
-
-        img = imread(img);
-        [h,w] = size(img);
-        n_blocks = 0;
-        id = 1;
-        for i= 1:2:(h-3)
-            for j= 1:2:(w-3)
-            b = img(i:(i+3),j:(j+3));
-            bdct = dct2(b);
-            tmp = reshape(bdct(:,:)',1,[]);
-            AC_Mat(id) = {tmp(2:size(tmp,2))};
-            dc(b) = tmp(1);
-            id = id + 1;
-            end
-        end
-    dc_means = mean(dc);
+dc_means = mean(dc);
  
 %% Normalisation et quantification
 h = size(AC_list,1);
