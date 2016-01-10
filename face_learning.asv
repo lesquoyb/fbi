@@ -1,29 +1,29 @@
 function face_learning
-    %  Identifier les motifs globaux, G_Patterns, pr�sents dans toutes les
+    %  Identifier les motifs globaux, G_Patterns, pr?sents dans toutes les
     %  images de tous les visages de la base de connaissance ainsi que les
     %  occurrences de ces motifs dans chaque image de chaque visage de la base.
     %  
-    %  Chaque image est d�coup�e en N blocs 4x4. Chaque bloc est analys� en
-    %  fr�quences via la DCT2 dont le coefficient DC est ignor�. Ensuite chaque
-    %  image est r�pr�sent�e par une matrice Nx15 qui sert � la fois �
-    %  identifier les motifs globaux et � construire l'histogramme de ces
+    %  Chaque image est d?coup?e en N blocs 4x4. Chaque bloc est analys? en
+    %  fr?quences via la DCT2 dont le coefficient DC est ignor?. Ensuite chaque
+    %  image est r?pr?sent?e par une matrice Nx15 qui sert ? la fois ?
+    %  identifier les motifs globaux et ? construire l'histogramme de ces
     %  motifs pour chaque image de chaque visage de la base de connaissance.
     %
-    % Les param�tres dont les motifs globaux, utiles � l'identification d'une
-    % image inconnue sont enregistr�s dans le fichier 'params.mat' ainsi que
+    % Les param?tres dont les motifs globaux, utiles ? l'identification d'une
+    % image inconnue sont enregistr?s dans le fichier 'params.mat' ainsi que
     % les histogrammes de chaque image de chaque visage de la base de
     % connaissance.
     %
-    % Le m�me traitement peut �tre fait avec les coefficients DC. Mais ils sont
-    % ignor�s pour ce projet.
+    % Le m?me traitement peut ?tre fait avec les coefficients DC. Mais ils sont
+    % ignor?s pour ce projet.
 
-    %% R�initialiser l'espace de travail
+    %% R?initialiser l'espace de travail
     clear
     clc
 
-    %% D�finir le r�pertoire de la base de connaisssance #
+    %% D?finir le r?pertoire de la base de connaisssance #
     db_path = uigetdir();
-    %% Initialiser les param�tres globaux
+    %% Initialiser les param?tres globaux
     BSZ = 4; %pour faire des blocs de 4x4
     QP = 22;
     N_AC_PATTERNS = 35;
@@ -54,7 +54,7 @@ function face_learning
     DC_MEAN_ALL = mean2(dc_means);
    
 
-    %% Stockage des param�tres dans une structure
+    %% Stockage des param?tres dans une structure
     params = struct(...
         'BSZ',BSZ,...
         'QP',QP,...
@@ -79,7 +79,7 @@ function face_learning
 
             
             % identification des motifs et comptage de leurs occurrences.
-            % QAC est la matrice des vecteurs AC quantif�s
+            % QAC est la matrice des vecteurs AC quantif?s
             last = 1;
             for i = 1:size( AC_list{f, fi},1) 
                 found = false;
@@ -99,7 +99,7 @@ function face_learning
             end
         end
     end
-    % Conserver les N_AC_PATTERNS motifs les plus pr�sents dans toutes les
+    % Conserver les N_AC_PATTERNS motifs les plus pr?sents dans toutes les
     % images de tous les visages de la base.
     [~,Idx] = sort(G_Patterns(:,end),'descend');
     G_Patterns = G_Patterns(Idx(1:N_AC_PATTERNS),1:(end-1));
