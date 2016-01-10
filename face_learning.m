@@ -126,6 +126,8 @@ function face_learning
     % save G_Patterns
     save('G_Patterns.mat','G_Patterns')
     disp('G_Patterns done')
+    QAC = AC_list{:,:};
+    save('QAC.mat','QAC')
 
     %% Construction des histogrammes de toutes les images de chaque visage
     AC_Patterns_Histo = zeros(size(G_Patterns,1),1);

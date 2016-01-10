@@ -11,7 +11,10 @@ end
 
 %% lecture des paramètres globaux
 load('params.mat'); % params est une structure (cf. face_learning)
+
 %% CUT HERE ====================================================================
+N_AC_PATTERNS = params.N_AC_PATTERNS;
+
 %% CUT HERE ====================================================================
 
 %% extraction des blocs DCT
@@ -25,13 +28,16 @@ load('params.mat'); % params est une structure (cf. face_learning)
 %% Comptage des occurrences des motifs globaux
 load('G_Patterns.mat');
 AC_Signatures = zeros(N_AC_PATTERNS,1);
+load('QAC')
+
 for idx = 1:N_AC_PATTERNS
-    AC_Signatures(idx) = find_Pattern(G_Patterns(idx,:),QAC);
+    AC_Signatures(idx) = sum(ismember(G_Patterns(idx,:),QAC));
 end
 
 %% Sélection des KPP meilleures AC_Patterns_Histo par PVH
 best = ones(KPP+1,3)*-1; % chaque ligne est <SAD,N°individu,N°profil>
 %% CUT HERE ====================================================================
+
 %% CUT HERE ====================================================================
 best = best(1:(end-1),2:end);
 
@@ -42,8 +48,7 @@ if( visu)
     imshow(img);
     for b = 1:KPP
         subplot(1,KPP+1,b+1);
-        filename = sprintf('%s/s%d/%d.png',...
-            params.DIR,best(b,1),best(b,2));
+        filename = sprintf('%s/s%d/%d.png',params.DIR,max(b,1),max(b,2));
         imreco = imread(filename);
         imshow(imreco);
     end
