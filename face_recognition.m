@@ -11,17 +11,40 @@ end
 
 %% lecture des paramètres globaux
 load('params.mat'); % params est une structure (cf. face_learning)
-%% CUT HERE ====================================================================
-%% CUT HERE ====================================================================
-
+ BZS = params.BSZ;
+ QP = params.QP;
+ N_AC_PATTERNS = params.N_AC_PATTERNS;
+ NB_FACES = params.NB_FACES;
+ NB_IMAGES = params.NB_IMAGES;
+ DC_MEAN_ALL = params.DC_MEAN_ALL;
+ DIR = params.db_path);
 %% extraction des blocs DCT
-%% CUT HERE ====================================================================
-%% CUT HERE ====================================================================
 
+        img = imread(img);
+        [h,w] = size(img);
+        n_blocks = 0;
+        id = 1;
+        for i= 1:2:(h-3)
+            for j= 1:2:(w-3)
+            b = img(i:(i+3),j:(j+3));
+            bdct = dct2(b);
+            tmp = reshape(bdct(:,:)',1,[]);
+            AC_Mat(id) = {tmp(2:size(tmp,2))};
+            dc(b) = tmp(1);
+            id = id + 1;
+            end
+        end
+    dc_means = mean(dc);
+ 
 %% Normalisation et quantification
-%% CUT HERE ====================================================================
-%% CUT HERE ====================================================================
-
+h = size(AC_list,1);
+        QAC = zeros(h, 15);
+        for i = 1:h
+                a = AC_list(i, :) * DC_MEAN_ALL;
+                b = a / dc_means / QP;
+                r = round(b);
+                QAC(i, :) = r;
+        end
 %% Comptage des occurrences des motifs globaux
 load('G_Patterns.mat');
 AC_Signatures = zeros(N_AC_PATTERNS,1);
@@ -36,7 +59,7 @@ best = ones(KPP+1,3)*-1; % chaque ligne est <SAD,N°individu,N°profil>
 best = best(1:(end-1),2:end);
 
 %% visualisation des visages possiblement identifiés
-if( visu)
+if(visu)
     figure;
     subplot(1,KPP+1,1);
     imshow(img);
