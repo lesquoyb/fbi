@@ -46,25 +46,8 @@ function face_learning
 
         % pour chaque image
         for fi = 1:NB_IMAGES
-            fname = sprintf('%s/%d.png',face_path,fi);
-            img = imread(fname);
-            [h,w] = size(img);
-
-            %faire des blocs de taille 4x4
-            %DCT, AC_Mat = split(img,BSZ,BZ2, QP);
-            id = 1;
-            AC_Mat = zeros(size(1:2:(h-3),2)*size(1:2:(w-3),2), ACSZ);
-            DC = zeros(1, size(1:2:(h-3),2)*size(1:2:(w-3),2));
-            for i= 1:2:(h-3)
-                for j= 1:2:(w-3)
-                    b = img(i:(i+3),j:(j+3));
-                    tmp = reshape(dct2(b)', 1, []);
-                    AC_Mat(id, :) = tmp(2:size(tmp,2));
-                    DC(id) = tmp(1);
-                    id = id + 1;
-                end
-            end
-            AC_list{f, fi} = AC_Mat;
+            path = sprintf('%s/%d.png', face_path , fi );
+            [AC_list{f, fi},DC] = read_acdc_image(path,ACSZ);
             dc_means(f,fi) = mean(DC);     
         end
     end
@@ -73,7 +56,7 @@ function face_learning
 
     %% Stockage des param�tres dans une structure
     params = struct(...
-        'BZS',BSZ,...
+        'BSZ',BSZ,...
         'QP',QP,...
         'N_AC_PATTERNS',N_AC_PATTERNS,...
         'NB_FACES',NB_FACES,...
@@ -90,10 +73,8 @@ function face_learning
     for f = 1:NB_FACES
         for fi = 1:NB_IMAGES
             % normalisation et quantification des AC
-            R = DC_MEAN_ALL / dc_means(fi);
-            for i = 1:size( AC_list{f, fi},1)
-                 AC_list{f, fi}(i, : ) = round( ( ( AC_list{f, fi}(i, :) * R) / QP) );
-            end
+            %TODO: dc_means(fi), pourquoi pas (f,fi) ?
+            AC_list{f,fi} = normalize(AC_list{f,fi}, DC_MEAN_ALL, dc_means(f,fi), QP);
             G_Patterns = zeros(size( AC_list{f, fi},1),size( AC_list{f, fi},2)+1);
 
             
@@ -125,9 +106,8 @@ function face_learning
 
     % save G_Patterns
     save('G_Patterns.mat','G_Patterns')
+    save('AC_list.mat','AC_list')
     disp('G_Patterns done')
-    QAC = AC_list{:,:};
-    save('QAC.mat','QAC')
 
     %% Construction des histogrammes de toutes les images de chaque visage
     AC_Patterns_Histo = zeros(size(G_Patterns,1),1);
@@ -152,3 +132,5 @@ function face_learning
 
 
 end
+
+
