@@ -110,7 +110,7 @@ function face_learning
     disp('G_Patterns done')
 
     %% Construction des histogrammes de toutes les images de chaque visage
-    AC_Patterns_Histo = zeros(size(G_Patterns,1),1);
+    AC_Patterns_Histo = zeros(NB_FACES,NB_IMAGES,size(G_Patterns,1),1);
     for f = 1:NB_FACES
         for fi = 1:NB_IMAGES
             MAC = cell2mat(AC_list(f,fi));
@@ -119,7 +119,7 @@ function face_learning
                 for j = 1:size(MAC,1)
                     if(seen(j) == 0)
                        if( MAC(j, :) == G_Patterns(i, :)) 
-                            AC_Patterns_Histo(i) = AC_Patterns_Histo(i) + 1;
+                            AC_Patterns_Histo(f,fi,i) = AC_Patterns_Histo(i) + 1;
                             seen(j) = 1;
                         end
                     end

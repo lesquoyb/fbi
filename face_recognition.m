@@ -16,7 +16,7 @@ load('params.mat'); % params est une structure (cf. face_learning)
  NB_FACES = params.NB_FACES;
  NB_IMAGES = params.NB_IMAGES;
  DC_MEAN_ALL = params.DC_MEAN_ALL;
- DIR = params.db_path;
+ DIR = params.DIR;
 %% extraction des blocs DCT
 
 N_AC_PATTERNS = params.N_AC_PATTERNS;
@@ -24,19 +24,9 @@ N_AC_PATTERNS = params.N_AC_PATTERNS;
 %% extraction des blocs DCT
 ACSZ = params.BSZ * params.BSZ -1;
 [AC_Mat,DC] = read_acdc_image(img,ACSZ);
-dc_means = mean(dc);
  
 %% Normalisation et quantification
-h = size(AC_list,1);
-        QAC = zeros(h, 15);
-        for i = 1:h
-                a = AC_list(i, :) * DC_MEAN_ALL;
-                b = a / dc_means / QP;
-                r = round(b);
-                QAC(i, :) = r;
-        end
-dc_mean = mean(DC);
-QAC = normalize(AC_Mat,params.DC_MEAN_ALL,dc_mean,params.QP);
+QAC = normalize(AC_Mat,params.DC_MEAN_ALL,mean(DC),params.QP);
 
 %% Comptage des occurrences des motifs globaux
 load('G_Patterns.mat');
@@ -44,23 +34,41 @@ AC_Signatures = zeros(N_AC_PATTERNS,1);
 
 
 for idx = 1:N_AC_PATTERNS
-    AC_Signatures(idx) = sum(ismember(G_Patterns(idx,:),QAC));
+    AC_Signatures(idx) = sum(ismember(G_Patterns(idx, :),QAC(:,:), 'rows')) ;
 end
 
 load('AC_Patterns_Histo')
 
 %% Sélection des KPP meilleures AC_Patterns_Histo par PVH
 best = ones(KPP+1,3)*-1; % chaque ligne est <SAD,N°individu,N°profil>
-%% CUT HERE ====================================================================
-id = 1;
-for i = size(AC_Patterns_Histo,1)
-    for j = size(size(AC_Patterns_Histo,2))
-        best(id) = [sum(AC_Patterns_Histo - AC_Patterns),
-        
+sad = ones(NB_FACES,NB_IMAGES);
+for f = 1:NB_FACES
+    for fi = 1:NB_IMAGES
+        sad(f,fi) = sum(abs(AC_Patterns_Histo(f,fi,:) - AC_Signatures(1, :)) )
     end
 end
+
+
+for i = 1:KPP
+    min = sad(1,1);
+    idx = 1;
+    idy = 1;
+    for f = 1:NB_FACES
+        for fi = 1:NB_IMAGES
+            if(sad(f,fi) < min)
+                min = sad(f,fi);
+                idx = f;
+                idy = fi;
+            end
+        end
+    end
     
-%% CUT HERE ====================================================================
+    best(i, 1) = min;
+    best(i, 2) = idx;
+    best(i, 3) = idy;
+    sad(idx,  idy) = intmax;
+end
+    
 best = best(1:(end-1),2:end);
 
 %% visualisation des visages possiblement identifiés
