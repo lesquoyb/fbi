@@ -38,7 +38,7 @@ function face_learning
     % des constantes
     blocSz =  (1:BSZ) - 1;
     BZ2 = floor(BSZ/2);
-    ACSZ = BSZ * BSZ - 1;   %TODO: le fameux 15 des matrices Nx15 ?
+    ACSZ = BSZ * BSZ - 1; 
     
     % pour chaque visage
     for f = 1:NB_FACES
@@ -119,7 +119,7 @@ function face_learning
                 for j = 1:size(MAC,1)
                     if(seen(j) == 0)
                        if( MAC(j, :) == G_Patterns(i, :)) 
-                            AC_Patterns_Histo(f,fi,i) = AC_Patterns_Histo(i) + 1;
+                            AC_Patterns_Histo(f,fi,i) = AC_Patterns_Histo(f,fi,i) + 1;
                             seen(j) = 1;
                         end
                     end

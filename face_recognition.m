@@ -34,7 +34,13 @@ AC_Signatures = zeros(N_AC_PATTERNS,1);
 
 
 for idx = 1:N_AC_PATTERNS
-    AC_Signatures(idx) = sum(ismember(G_Patterns(idx, :),QAC(:,:), 'rows')) ;
+    s = 0;
+    for i = 1:size(QAC,1)
+        if(G_Patterns(idx, : ) == QAC(i,:))  
+            s = s + 1;
+        end
+    end
+    AC_Signatures(idx) = s;
 end
 
 load('AC_Patterns_Histo')
@@ -44,7 +50,11 @@ best = ones(KPP+1,3)*-1; % chaque ligne est <SAD,N°individu,N°profil>
 sad = ones(NB_FACES,NB_IMAGES);
 for f = 1:NB_FACES
     for fi = 1:NB_IMAGES
-        sad(f,fi) = sum(abs(AC_Patterns_Histo(f,fi,:) - AC_Signatures(1, :)) )
+        s = 0;
+        for i = 1:N_AC_PATTERNS
+            s = s + abs(AC_Patterns_Histo(f,fi,i) - AC_Signatures(i)) ;
+        end
+        sad(f,fi) = s;
     end
 end
 
@@ -57,16 +67,17 @@ for i = 1:KPP
         for fi = 1:NB_IMAGES
             if(sad(f,fi) < min)
                 min = sad(f,fi);
-                idx = f;
-                idy = fi;
+                idy = f;
+                idx = fi;
             end
         end
     end
     
     best(i, 1) = min;
-    best(i, 2) = idx;
-    best(i, 3) = idy;
+    best(i, 2) = idy;
+    best(i, 3) = idx;
     sad(idx,  idy) = intmax;
+
 end
     
 best = best(1:(end-1),2:end);
